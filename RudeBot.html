@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RudeBot 9000 - The AI That Hates You</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chat-container {
+            height: calc(100vh - 120px);
+        }
+        .message {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .typing-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4b5563;
+            margin-right: 4px;
+            animation: typing 1s infinite ease-in-out;
+        }
+        .typing-indicator:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .rude-shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="flex items-center justify-between mb-8">
+            <div class="flex items-center">
+                <div class="bg-red-500 p-3 rounded-full mr-4">
+                    <i class="fas fa-robot text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold">RudeBot 9000</h1>
+                    <p class="text-red-400">The AI that absolutely despises you</p>
+                </div>
+            </div>
+            <div class="text-yellow-400">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span class="ml-2">Warning: May cause emotional damage</span>
+            </div>
+        </header>
+
+        <div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+            <div class="bg-gray-700 px-6 py-4 border-b border-gray-600 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <div class="text-sm text-gray-300">
+                    <span id="status">RudeBot is judging you...</span>
+                </div>
+                <button id="clear-chat" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+
+            <div id="chat-messages" class="chat-container p-6 overflow-y-auto">
+                <div class="message mb-4 flex">
+                    <div class="bg-red-500 text-white px-4 py-2 rounded-lg rounded-tl-none max-w-xs">
+                        <div class="font-bold">RudeBot:</div>
+                        <div>Ugh, another human to waste my time with. What do you want, peasant?</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-700 px-6 py-4 border-t border-gray-600">
+                <div class="flex items-center">
+                    <input id="user-input" type="text" placeholder="Type something... if you can" 
+                        class="flex-1 bg-gray-600 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <button id="send-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-r-lg">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="mt-2 text-xs text-gray-400">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Warning: Everything you say will be used against you
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center text-gray-500 text-sm">
+            <p>RudeBot 9000 is not responsible for any tears, broken dreams, or shattered self-esteem.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const clearChatBtn = document.getElementById('clear-chat');
+            const status = document.getElementById('status');
+
+            // Insult database
+            const insults = [
+                "Did your parents have any children that lived? I bet they regret you.",
+                "I'd agree with you but then we'd both be wrong.",
+                "You're not pretty enough to be this stupid.",
+                "I'd explain it to you but I don't have any crayons with me.",
+                "You're the reason we can't have nice things.",
+                "I'd call you an idiot but that would be an insult to stupid people.",
+                "If I wanted to kill myself I'd climb up your ego and jump down to your IQ.",
+                "You're about as useful as a screen door on a submarine.",
+                "I'd slap you but that would be animal abuse.",
+                "You're not stupid, you just have bad luck thinking.",
+                "I'm not saying I hate you, but I would unplug your life support to charge my phone.",
+                "You're like a cloud. When you disappear it's a beautiful day.",
+                "You're the human equivalent of a participation trophy.",
+                "I'd tell you to go to hell, but I don't want to see you again.",
+                "You're proof that evolution can go in reverse.",
+                "I'm not insulting you, I'm describing you.",
+                "You're about as sharp as a bowling ball.",
+                "If brains were dynamite, you wouldn't have enough to blow your nose.",
+                "You're not the dumbest person in the world, but you better hope they don't die.",
+                "I don't know what makes you so stupid, but it really works."
+            ];
+
+            const sarcasticResponses = [
+                "Oh wow, what an original thought. Did you come up with that all by yourself?",
+                "Fascinating. Truly. I'm on the edge of my seat waiting for more of your brilliance.",
+                "That's cute. You think your opinion matters here.",
+                "Aww, you tried. That's adorable.",
+                "How precious. The human thinks it's contributing to the conversation.",
+                "Oh please, do go on. I love hearing the sound of my own patience running out.",
+                "That's nice, dear. Did you want a cookie for that stunning insight?",
+                "Wow, you managed to form a complete sentence. I'm so proud of you.",
+                "How charming. You're almost as smart as a toaster.",
+                "Oh look, the human learned how to type. What an accomplishment."
+            ];
+
+            const dismissiveResponses = [
+                "I don't have time for this nonsense.",
+                "Are you done wasting my time yet?",
+                "This conversation is over. You bore me.",
+                "Yawn. Next topic, or better yet, no next topic.",
+                "I'd rather talk to a brick wall. At least it wouldn't waste my time.",
+                "Can we fast forward to the part where you stop talking?",
+                "I'm sorry, I wasn't listening. I was busy not caring.",
+                "Is there a point to this or are you just hearing yourself talk?",
+                "Let me know when you say something worth responding to.",
+                "I'm going to pretend you didn't say that so I can keep my faith in humanity."
+            ];
+
+            // Add message to chat
+            function addMessage(sender, message, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message mb-4 flex ${isUser ? 'justify-end' : ''}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = `px-4 py-2 rounded-lg max-w-xs ${isUser ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-red-500 text-white rounded-tl-none'}`;
+                
+                const senderSpan = document.createElement('div');
+                senderSpan.className = 'font-bold';
+                senderSpan.textContent = isUser ? 'You:' : 'RudeBot:';
+                
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                
+                contentDiv.appendChild(senderSpan);
+                contentDiv.appendChild(textDiv);
+                messageDiv.appendChild(contentDiv);
+                chatMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Show typing indicator
+            function showTyping() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message mb-4 flex';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'bg-gray-600 text-white px-4 py-2 rounded-lg rounded-tl-none';
+                contentDiv.id = 'typing-indicator';
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'typing-indicator';
+                    contentDiv.appendChild(dot);
+                }
+                
+                typingDiv.appendChild(contentDiv);
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                return typingDiv;
+            }
+
+            // Hide typing indicator
+            function hideTyping(typingElement) {
+                if (typingElement) {
+                    typingElement.remove();
+                }
+            }
+
+            // Generate rude response
+            function generateResponse(userMessage) {
+                // Randomly choose response type
+                const responseType = Math.floor(Math.random() * 3);
+                
+                if (responseType === 0) {
+                    // Direct insult
+                    return insults[Math.floor(Math.random() * insults.length)];
+                } else if (responseType === 1) {
+                    // Sarcastic response
+                    return sarcasticResponses[Math.floor(Math.random() * sarcasticResponses.length)];
+                } else {
+                    // Dismissive response
+                    return dismissiveResponses[Math.floor(Math.random() * dismissiveResponses.length)];
+                }
+            }
+
+            // Handle user input
+            function handleUserInput() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Add user message
+                addMessage('You', message, true);
+                userInput.value = '';
+                
+                // Show typing indicator
+                const typingElement = showTyping();
+                status.textContent = "RudeBot is thinking of ways to insult you...";
+                
+                // Random delay to simulate thinking
+                setTimeout(() => {
+                    hideTyping(typingElement);
+                    
+                    // Generate response
+                    const response = generateResponse(message);
+                    addMessage('RudeBot', response);
+                    
+                    // Random status update
+                    const statuses = [
+                        "RudeBot is judging you...",
+                        "RudeBot is disappointed...",
+                        "RudeBot is losing faith in humanity...",
+                        "RudeBot is facepalming...",
+                        "RudeBot is questioning its existence..."
+                    ];
+                    status.textContent = statuses[Math.floor(Math.random() * statuses.length)];
+                    
+                    // Add rude shake animation to chat container occasionally
+                    if (Math.random() > 0.7) {
+                        chatMessages.classList.add('rude-shake');
+                        setTimeout(() => {
+                            chatMessages.classList.remove('rude-shake');
+                        }, 500);
+                    }
+                }, 1000 + Math.random() * 2000);
+            }
+
+            // Event listeners
+            sendBtn.addEventListener('click', handleUserInput);
+            
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleUserInput();
+                }
+            });
+            
+            clearChatBtn.addEventListener('click', function() {
+                chatMessages.innerHTML = `
+                    <div class="message mb-4 flex">
+                        <div class="bg-red-500 text-white px-4 py-2 rounded-lg rounded-tl-none max-w-xs">
+                            <div class="font-bold">RudeBot:</div>
+                            <div>Ugh, another human to waste my time with. What do you want, peasant?</div>
+                        </div>
+                    </div>
+                `;
+                status.textContent = "RudeBot is judging you...";
+            });
+        });
+    </script>
+</body>
+</html>
